@@ -71,29 +71,32 @@ void init(cpu *cp)
 void loadrom(char *path)
 {
 	FILE *rom;
-	cpu *cp = calloc(sizeof(cpu), 1);
-	BYTE buffer[0x0F00];
-	int buffersize;
-	int i = 0;
+	cpu *cp;
 	
-	rom = fopen(path, "f");
+	rom = fopen(path, "rb");
 	
-	if(rom != 0) 
-	{
-		buffersize = fread(buffer,sizeof(BYTE), sizeof(buffer), rom);
-	
-		for(; i < buffersize; i++)
-		{
-			cp->memory[0x200 + i] = buffer[i];
-		}
-	
-		fclose(rom);
+	if(!rom) {
+		printf("Can not read file");
+		return -1;
 	}
+		
+	fread(&cpu->memory[cp->pc], 0x1000, 1, rom);
+
+	fclose(rom);
 }
 
 
 int main(int argc, char *argv[])
 {
+	cpu *cp;
+	init(cp);
+	
+	if(argc < 2) {
+		printf("You must specify the game path");
+		return -1;
+	}
+
+	loadrom(argv[1]);		
+	
 	return 0;
 }
-
