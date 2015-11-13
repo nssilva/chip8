@@ -68,10 +68,9 @@ void init(cpu *cp)
 	cp->pc = 0x200;
 }
 
-void loadrom(char *path)
+int loadrom(cpu *cp, char *path)
 {
 	FILE *rom;
-	cpu *cp;
 	
 	rom = fopen(path, "rb");
 	
@@ -80,14 +79,26 @@ void loadrom(char *path)
 		return -1;
 	}
 		
-	fread(&cp->memory[cp->pc], 0x1000, 1, rom);
-
+	int want = sizeof(cp->memory);
+	int len = fread(cp->memory, 1, want, rom);
 	fclose(rom);
+
+	if(len<0)
+	{
+		printf("Error (%d) on read of %s: %m\n", len, path);
+		return -2;
+	}
+
+	if(len!=want) // can probably ignore
+	{
+	}
+
+	return 0;
 }
 
 int main(int argc, char *argv[])
 {
-	cpu *cp;
+	cpu *cp = malloc(sizeof(*cp));
 	init(cp);
 	
 	if(argc < 2) {
@@ -95,7 +106,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	loadrom(argv[1]);		
+	loadrom(cp, argv[1]);		
 	
 	return 0;
 }
