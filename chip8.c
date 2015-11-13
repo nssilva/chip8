@@ -38,10 +38,16 @@ void do_jp(cpu *cp)
 	setpc(cp, cp->opcode & 0xfff);
 }
 
+void do_catchall(cpu *cp)
+{
+	printf("Unrecognized opcode 0x%04x\n", cp->opcode);
+}
+
 opcode opcodes[] = {
 {0xffff, 0x00e0, do_cls},
 {0xf000, 0x2000, do_call},
 {0xf000, 0xb000, do_jp},
+{0x0000, 0x0000, do_catchall} // MAKE THIS LAST!!!!
 };
 
 
@@ -107,6 +113,10 @@ int main(int argc, char *argv[])
 	}
 
 	loadrom(cp, argv[1]);		
-	
+
+	for(;;)
+	{
+		singlestep(cp);
+	}
 	return 0;
 }
