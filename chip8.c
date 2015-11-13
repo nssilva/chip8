@@ -80,11 +80,10 @@ void loadrom(char *path)
 		return -1;
 	}
 		
-	fread(&cpu->memory[cp->pc], 0x1000, 1, rom);
+	fread(&cp->memory[cp->pc], 0x1000, 1, rom);
 
 	fclose(rom);
 }
-
 
 int main(int argc, char *argv[])
 {
