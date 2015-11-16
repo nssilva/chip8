@@ -38,6 +38,17 @@ void do_jp(cpu *cp)
 	setpc(cp, cp->opcode & 0xfff);
 }
 
+void do_pop(cpu *cp)
+{
+	//cp->pc = cp->stack[cp->sp--]; // man this is confusing :-(
+	setpc(pc, cp->stack[cp->sp--]);//?? 
+}
+
+void do_push(cpu *cp)
+{
+	cp->stack[cp->sp++];
+}
+
 void do_catchall(cpu *cp)
 {
 	printf("Unrecognized opcode 0x%04x\n", cp->opcode);
@@ -47,6 +58,7 @@ void do_catchall(cpu *cp)
 opcode opcodes[] = {
 {0xffff, 0x00e0, do_cls},
 {0xf000, 0x2000, do_call},
+{0xf000, 0x00ee, do_pop}, //is this ok?? more confused
 {0xf000, 0xb000, do_jp},
 {0x0000, 0x0000, do_catchall} // MAKE THIS LAST!!!!
 };
