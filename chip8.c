@@ -1,5 +1,24 @@
 #include "chip8.h"
 
+// http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
+
+int do_log(cpu *cp)
+{
+	FILE *out;
+	
+	out = fopen("out.txt", "a+");
+	
+	if(out == 0)
+	{
+		printf("cant't open file for writing");
+	}
+
+	fprintf(out, "Unrecognized opcode 0x%04x\n", cp->opcode);
+	fclose(out);
+	
+	return 0;
+}
+
 BYTE r8(cpu *cp, int addr)
 {
 	return cp->memory[addr & MEMMASK];
@@ -30,6 +49,8 @@ void do_cls(cpu *cp)
 void do_call(cpu *cp)
 {
 	printf("call\n");
+	cp->stack[STACKMASK & ++cp->sp] = cp->pc;
+	setpc(cp, cp->opcode & 0xfff);
 }
 
 void do_jp(cpu *cp)
@@ -38,15 +59,20 @@ void do_jp(cpu *cp)
 	setpc(cp, cp->opcode & 0xfff);
 }
 
+void do_ret(cpu *cp)
+{
+	setpc(cp, cp->stack[STACKMASK & cp->sp--]);
+}
+
 void do_pop(cpu *cp)
 {
 	//cp->pc = cp->stack[cp->sp--]; // man this is confusing :-(
-	setpc(pc, cp->stack[cp->sp--]);//?? 
+	setpc(cp, cp->stack[cp->sp--]);//?? 
 }
 
 void do_push(cpu *cp)
 {
-	cp->stack[cp->sp++];
+	//cp->stack[++cp->sp];
 }
 
 void do_catchall(cpu *cp)
@@ -58,7 +84,7 @@ void do_catchall(cpu *cp)
 opcode opcodes[] = {
 {0xffff, 0x00e0, do_cls},
 {0xf000, 0x2000, do_call},
-{0xf000, 0x00ee, do_pop}, //is this ok?? more confused
+{0xffff, 0x00ee, do_ret},
 {0xf000, 0xb000, do_jp},
 {0x0000, 0x0000, do_catchall} // MAKE THIS LAST!!!!
 };
@@ -84,7 +110,7 @@ void singlestep(cpu *cp)
 void init(cpu *cp)
 {
 	memset(cp, 0, sizeof(*cp));
-	cp->pc = 0x200
+	cp->pc = 0x200;
 	
 	memcpy(&cp->memory[FONT_BASE], fontset, FONT_SIZE);
 }
@@ -114,24 +140,6 @@ int loadrom(cpu *cp, char *path)
 	{
 	}
 
-	return 0;
-}
-
-
-int do_log(cpu *cp)
-{
-	FILE *out;
-	
-	out = fopen("out.txt", "a+");
-	
-	if(out == 0)
-	{
-		printf("cant't open file for writing");
-	}
-
-	fprintf(out, "Unrecognized opcode 0x%04x\n", cp->opcode);
-	fclose(out);
-	
 	return 0;
 }
 
