@@ -41,6 +41,7 @@ void do_jp(cpu *cp)
 void do_catchall(cpu *cp)
 {
 	printf("Unrecognized opcode 0x%04x\n", cp->opcode);
+	do_log(cp);	
 }
 
 opcode opcodes[] = {
@@ -71,7 +72,9 @@ void singlestep(cpu *cp)
 void init(cpu *cp)
 {
 	memset(cp, 0, sizeof(*cp));
-	cp->pc = 0x200;
+	cp->pc = 0x200
+	
+	memcpy(&cp->memory[FONT_BASE], fontset, FONT_SIZE);
 }
 
 int loadrom(cpu *cp, char *path)
@@ -99,6 +102,24 @@ int loadrom(cpu *cp, char *path)
 	{
 	}
 
+	return 0;
+}
+
+
+int do_log(cpu *cp)
+{
+	FILE *out;
+	
+	out = fopen("out.txt", "a+");
+	
+	if(out == 0)
+	{
+		printf("cant't open file for writing");
+	}
+
+	fprintf(out, "Unrecognized opcode 0x%04x\n", cp->opcode);
+	fclose(out);
+	
 	return 0;
 }
 
