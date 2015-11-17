@@ -102,7 +102,7 @@ typedef struct cpu {
 	BYTE delay;
 	BYTE sound;
 	BYTE memory[MEMSIZE];
-	BYTE gfx[64][32];
+	BYTE gfx[64 * 32];
 	BYTE key[0x10];
 	WORD opcode;
 } cpu;
