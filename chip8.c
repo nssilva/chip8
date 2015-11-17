@@ -44,6 +44,7 @@ WORD fetchop(cpu *cp)
 void do_cls(cpu *cp)
 {
 	printf("cls\n");
+	memset(cp->gfx, 0x00, sizeof(*cp->gfx) * 32 * 64);
 }
 
 void do_call(cpu *cp)
@@ -62,17 +63,6 @@ void do_jp(cpu *cp)
 void do_ret(cpu *cp)
 {
 	setpc(cp, cp->stack[STACKMASK & cp->sp--]);
-}
-
-void do_pop(cpu *cp)
-{
-	//cp->pc = cp->stack[cp->sp--]; // man this is confusing :-(
-	setpc(cp, cp->stack[cp->sp--]);//?? 
-}
-
-void do_push(cpu *cp)
-{
-	//cp->stack[++cp->sp];
 }
 
 void do_catchall(cpu *cp)
