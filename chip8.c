@@ -89,6 +89,12 @@ void do_sne(cpu *cp)
 	}
 }
 
+void set_vx_kk(cpu *cp)
+{
+	cp->v[(cp->opcode & 0xF00) >> 8] = cp->opcode & 0x00FF;
+	cp->pc +=2;
+}
+
 void do_catchall(cpu *cp)
 {
 	printf("Unrecognized opcode 0x%04x\n", cp->opcode);
@@ -101,6 +107,7 @@ opcode opcodes[] = {
 {0xf000, 0x2000, do_call},
 {0xf000, 0x3000, do_se},
 {0xf000, 0x4000, do_sne},
+{0xf000, 0x6000, set_vx_kk},
 {0xffff, 0x00ee, do_ret},
 {0xf000, 0xb000, do_jp},
 {0x0000, 0x0000, do_catchall} // MAKE THIS LAST!!!!
