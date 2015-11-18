@@ -65,34 +65,33 @@ void do_ret(cpu *cp)
 	setpc(cp, cp->stack[STACKMASK & cp->sp--]);
 }
 
-void do_se(cpu *cp)
+void do_skp_vx_kk(cpu *cp)
 {
 	if(cp->v[cp->opcode & 0x0f00 >> 8] == (cp->opcode & 0x00ff))
 	{
-		cp->pc +=4;
-	}
-	else
-	{
-		cp->pc +=2;
+		cp->pc +=2;//skips next instruction because the singlestep do the first cp->pc +=2;
 	}
 }
 
-void do_sne(cpu *cp)
+void do_skp_vx_not_kk(cpu *cp)
 {
 	if(cp->v[cp->opcode & 0x0f00 >> 8] != (cp->opcode & 0x00ff))
 	{
-		cp->pc +=4; //skips next instruction witch is usually cp->pc +=2;
-	}
-	else
-	{
-		cp->pc +=2;
+		cp->pc +=2; //skips next instruction because the singlestep do the first cp->pc +=2;
 	}
 }
 
-void set_vx_kk(cpu *cp)
+void do_skp_vx_vy(cpu *cp)
 {
-	cp->v[(cp->opcode & 0xF00) >> 8] = cp->opcode & 0x00FF;
-	cp->pc +=2;
+	if(cp->v[(cp->opcode & 0x0F00 >> 8)] == ((opcode & 0x0F00) >> 4))
+	{
+		cp->pc +=2;	
+	}
+}
+
+void do_set_vx_kk(cpu *cp)
+{
+	cp->v[(cp->opcode & 0xF00) >> 8] = (cp->opcode & 0x00FF);
 }
 
 void do_catchall(cpu *cp)
@@ -105,9 +104,10 @@ opcode opcodes[] = {
 {0xffff, 0x00e0, do_cls},
 {0xf000, 0x1000, do_jp},
 {0xf000, 0x2000, do_call},
-{0xf000, 0x3000, do_se},
-{0xf000, 0x4000, do_sne},
-{0xf000, 0x6000, set_vx_kk},
+{0xf000, 0x3000, do_skp_vx_kk},
+{0xf000, 0x4000, do_skp_vx_not_kk},
+{0xf000, 0x5000, do_skp_vx_vy},
+{0xf000, 0x6000, do_set_vx_kk},
 {0xffff, 0x00ee, do_ret},
 {0xf000, 0xb000, do_jp},
 {0x0000, 0x0000, do_catchall} // MAKE THIS LAST!!!!
