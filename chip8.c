@@ -57,7 +57,7 @@ void do_call(cpu *cp)
 void do_jp(cpu *cp)
 {
 	printf("jp\n");
-	setpc(cp, cp->opcode & 0xfff);
+	setpc(cp, cp->opcode & 0x0fff);
 }
 
 void do_ret(cpu *cp)
@@ -83,7 +83,7 @@ void do_skp_vx_not_kk(cpu *cp)
 
 void do_skp_vx_vy(cpu *cp)
 {
-	if(cp->v[(cp->opcode & 0x0F00 >> 8)] == ((opcode & 0x0F00) >> 4))
+	if(cp->v[(cp->opcode & 0x0F00) >> 8] == ((cp->opcode & 0x0F00) >> 4))
 	{
 		cp->pc +=2;	
 	}
@@ -91,7 +91,45 @@ void do_skp_vx_vy(cpu *cp)
 
 void do_set_vx_kk(cpu *cp)
 {
-	cp->v[(cp->opcode & 0xF00) >> 8] = (cp->opcode & 0x00FF);
+	cp->v[(cp->opcode & 0x0f00) >> 8] = (cp->opcode & 0x00FF);
+}
+
+void do_set_vx_kk_add(cpu *cp)
+{
+	cp->v[(cp->opcode & 0x0f00) >> 8] += (cp->opcode & 0x00ff);
+}
+
+void do_set_vx_vy(cpu *cp)
+{
+	
+}
+
+void do_skp_vx_not_vy(cpu *cp)
+{
+	if(cp->v[(cp->opcode & 0x0f00) >> 8] != cp->v[(cp->opcode & 0x00f0)])
+	{
+		cp->pc +=2;
+	}
+}
+
+void do_set_i_nnn(cpu *cp)
+{
+	cp->i = (cp->opcode & 0x0fff);
+}
+
+void do_jp_v0(cpu *cp)
+{
+	printf("Another jp\n");
+	setpc(cp, (cp->opcode & 0xfff) + cp->v[0]);
+}
+
+void do_set_vx_rnd_kk(cpu *cp)
+{
+	WORD rnd = rand();
+	
+	rnd &= (cp->opcode & 0x00ff);
+	
+	cp->v[(cp->opcode & 0x0f00) >> 8] = rnd;
 }
 
 void do_catchall(cpu *cp)
@@ -108,8 +146,13 @@ opcode opcodes[] = {
 {0xf000, 0x4000, do_skp_vx_not_kk},
 {0xf000, 0x5000, do_skp_vx_vy},
 {0xf000, 0x6000, do_set_vx_kk},
+{0xf000, 0x7000, do_set_vx_kk_add},
+{0xf000, 0x8000, do_set_vx_vy},
+{0xf000, 0x9000, do_skp_vx_not_vy},
+{0xf000, 0xa000, do_set_i_nnn},
 {0xffff, 0x00ee, do_ret},
-{0xf000, 0xb000, do_jp},
+{0xf000, 0xb000, do_jp_v0},
+{0xf000, 0xc000, do_set_vx_rnd_kk},
 {0x0000, 0x0000, do_catchall} // MAKE THIS LAST!!!!
 };
 
