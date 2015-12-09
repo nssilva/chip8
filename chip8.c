@@ -93,16 +93,16 @@ void do_skp_vx_vy(cpu *cp)
 #define VX   cp->v[(cp->opcode & 0x0f00) >> 8]
 #define VY   cp->v[(cp->opcode & 0x00f0) >> 4]
 
+
 void do_set_vx_kk(cpu *cp)
 {
 	cp->v[(cp->opcode & 0x0f00) >> 8] = (cp->opcode & 0x00FF);
 }
 
-
 void do_set_vx_kk_add(cpu *cp)
 {
 	VX += IMM8;
-//	cp->v[(cp->opcode & 0x0f00) >> 8] += (cp->opcode & 0x00ff);
+	//cp->v[(cp->opcode & 0x0f00) >> 8] += (cp->opcode & 0x00ff);
 }
 
 void do_ld_vx_vy(cpu *cp)
@@ -110,9 +110,19 @@ void do_ld_vx_vy(cpu *cp)
 	VX = VY;
 }
 
-void do_or_vx_vy(cpu *cp)
+void do_or_vx_xy(cpu *cp)
 {
 	VX |= VY;
+}
+
+void do_and_vx_vy(cpu *cp)
+{
+	VX &= VY;
+}
+
+void do_xor_vx_vy(cpu *cp)
+{
+	VX ^= VY;
 }
 
 void do_skp_vx_not_vy(cpu *cp)
@@ -158,8 +168,7 @@ opcode opcodes[] = {
 {0xf000, 0x5000, do_skp_vx_vy},
 {0xf000, 0x6000, do_set_vx_kk},
 {0xf000, 0x7000, do_set_vx_kk_add},
-{0xf00f, 0x8000, do_ld_vx_vy},
-{0xf00f, 0x8001, do_or_vx_vy},
+{0xf000, 0x8000, do_ld_vx_vy},
 {0xf000, 0x9000, do_skp_vx_not_vy},
 {0xf000, 0xa000, do_set_i_nnn},
 {0xffff, 0x00ee, do_ret},
