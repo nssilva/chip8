@@ -110,7 +110,7 @@ void do_ld_vx_vy(cpu *cp)
 	VX = VY;
 }
 
-void do_or_vx_xy(cpu *cp)
+void do_or_vx_vy(cpu *cp)
 {
 	VX |= VY;
 }
@@ -168,7 +168,10 @@ opcode opcodes[] = {
 {0xf000, 0x5000, do_skp_vx_vy},
 {0xf000, 0x6000, do_set_vx_kk},
 {0xf000, 0x7000, do_set_vx_kk_add},
-{0xf000, 0x8000, do_ld_vx_vy},
+{0xf00f, 0x8001, do_or_vx_vy},
+{0xf00f, 0x8002, do_and_vx_vy},
+{0xf00f, 0x8003, do_xor_vx_vy},
+{0xf00f, 0x8000, do_ld_vx_vy},
 {0xf000, 0x9000, do_skp_vx_not_vy},
 {0xf000, 0xa000, do_set_i_nnn},
 {0xffff, 0x00ee, do_ret},
