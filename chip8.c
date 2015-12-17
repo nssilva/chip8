@@ -2,6 +2,7 @@
 
 // http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
 
+	
 int do_log(cpu *cp)
 {
 	FILE *out;
@@ -92,7 +93,7 @@ void do_skp_vx_vy(cpu *cp)
 #define IMM8 (cp->opcode & 0x00ff)
 #define VX   cp->v[(cp->opcode & 0x0f00) >> 8]
 #define VY   cp->v[(cp->opcode & 0x00f0) >> 4]
-
+#define VF   cp->v[0xf] 
 
 void do_set_vx_kk(cpu *cp)
 {
@@ -153,6 +154,33 @@ void do_set_vx_rnd_kk(cpu *cp)
 	cp->v[(cp->opcode & 0x0f00) >> 8] = rnd;
 }
 
+void do_add_vx_vy(cpu *cp) 
+{
+	VF = (VX + VY) > 0xff; 
+	VX += VY;
+	printf("I HAVE BEEN CALLED YUPII");
+}
+
+void do_sub_vx_vy(cpu *cp)
+{
+	VF = (VX >= VY);
+	VX -= VY;
+}
+
+void do_shr_vx(cpu *cp)
+{
+	VF = (VX & 0x0001); /*shr = shift right >> */
+	
+	VX >>= 1; /*this is the same as divide by two*/
+}
+
+void do_subn_vx_vy(cpu *cp)
+{
+	VX = VY - VX;
+	VF = (VY > VX);
+	VX -= VY;
+}
+
 void do_catchall(cpu *cp)
 {
 	printf("Unrecognized opcode 0x%04x\n", cp->opcode);
@@ -168,10 +196,14 @@ opcode opcodes[] = {
 {0xf000, 0x5000, do_skp_vx_vy},
 {0xf000, 0x6000, do_set_vx_kk},
 {0xf000, 0x7000, do_set_vx_kk_add},
+{0xf00f, 0x8000, do_ld_vx_vy},
 {0xf00f, 0x8001, do_or_vx_vy},
 {0xf00f, 0x8002, do_and_vx_vy},
 {0xf00f, 0x8003, do_xor_vx_vy},
-{0xf00f, 0x8000, do_ld_vx_vy},
+{0xf00f, 0x8004, do_add_vx_vy},
+{0xf00f, 0x8005, do_sub_vx_vy},
+{0xf00f, 0x8006, do_shr_vx},
+{0xf00f, 0x8007, do_subn_vx_vy},
 {0xf000, 0x9000, do_skp_vx_not_vy},
 {0xf000, 0xa000, do_set_i_nnn},
 {0xffff, 0x00ee, do_ret},
@@ -196,7 +228,6 @@ void singlestep(cpu *cp)
 		}
 	}
 }
-
 
 void init(cpu *cp)
 {
