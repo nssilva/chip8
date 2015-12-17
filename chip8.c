@@ -163,7 +163,7 @@ void do_add_vx_vy(cpu *cp)
 
 void do_sub_vx_vy(cpu *cp)
 {
-	VF = (VX >= VY);
+	VF = (VX > VY);
 	VX -= VY;
 }
 
@@ -176,9 +176,8 @@ void do_shr_vx(cpu *cp)
 
 void do_subn_vx_vy(cpu *cp)
 {
-	VX = VY - VX;
 	VF = (VY > VX);
-	VX -= VY;
+	VX = VY - VX;
 }
 
 void do_catchall(cpu *cp)
