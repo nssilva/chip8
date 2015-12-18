@@ -181,8 +181,7 @@ void do_subn_vx_vy(cpu *cp)
 
 void do_shl_vx_vy(cpu *cp)
 {
-	VF = (VX & 0x80); /*the MSB is the first from the left*/
-					/*from what i have been seen its 8 bits so we could (VX& 0x80) or VX >> 7*/
+	VF = (VX>>7);
 	VX <<= 1; /*this is the same as multiply by two*/
 }
 
