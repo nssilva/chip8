@@ -158,7 +158,6 @@ void do_add_vx_vy(cpu *cp)
 {
 	VF = (VX + VY) > 0xff; 
 	VX += VY;
-	printf("I HAVE BEEN CALLED YUPII");
 }
 
 void do_sub_vx_vy(cpu *cp)
@@ -178,6 +177,29 @@ void do_subn_vx_vy(cpu *cp)
 {
 	VF = (VY > VX);
 	VX = VY - VX;
+}
+
+void do_shl_vx_vy(cpu *cp)
+{
+	VF = (VX & 0x80); /*the MSB is the first from the left*/
+					/*from what i have been seen its 8 bits so we could (VX& 0x80) or VX >> 7*/
+	VX <<= 1; /*this is the same as multiply by two*/
+}
+
+void do_set_keypressed_vx(cpu *cp)
+{
+	if(cp->key[VX]) 
+	{
+		cp->pc +=2;
+	}
+}
+
+void do_sknp_vx(cpu *cp)
+{
+	if(!cp->key[VX])
+	{
+		cp->pc += 2;
+	}
 }
 
 void do_catchall(cpu *cp)
@@ -203,11 +225,14 @@ opcode opcodes[] = {
 {0xf00f, 0x8005, do_sub_vx_vy},
 {0xf00f, 0x8006, do_shr_vx},
 {0xf00f, 0x8007, do_subn_vx_vy},
+{0xf00f, 0x800e, do_shl_vx_vy},
 {0xf000, 0x9000, do_skp_vx_not_vy},
 {0xf000, 0xa000, do_set_i_nnn},
-{0xffff, 0x00ee, do_ret},
 {0xf000, 0xb000, do_jp_v0},
 {0xf000, 0xc000, do_set_vx_rnd_kk},
+{0xf0ff, 0xe09e, do_set_keypressed_vx},
+{0xf0ff, 0xe0a1, do_sknp_vx},
+{0xffff, 0x00ee, do_ret},
 {0x0000, 0x0000, do_catchall} // MAKE THIS LAST!!!!
 };
 
