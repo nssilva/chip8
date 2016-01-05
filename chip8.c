@@ -169,7 +169,6 @@ void do_sub_vx_vy(cpu *cp)
 void do_shr_vx(cpu *cp)
 {
 	VF = (VX & 0x0001); /*shr = shift right >> */
-	
 	VX >>= 1; /*this is the same as divide by two*/
 }
 
@@ -181,7 +180,8 @@ void do_subn_vx_vy(cpu *cp)
 
 void do_shl_vx_vy(cpu *cp)
 {
-	VF = (VX>>7);
+	VF = (VX & 0x80); /*the MSB is the first from the left*/
+					/*from what i have been seen its 8 bits so we could (VX& 0x80) or VX >> 7*/
 	VX <<= 1; /*this is the same as multiply by two*/
 }
 
@@ -199,6 +199,32 @@ void do_sknp_vx(cpu *cp)
 	{
 		cp->pc += 2;
 	}
+    
+    printf("Do SKIP VX");
+}
+
+void do_drw_vx_vy(cpu *cp) 
+{
+    VF &= 0;
+    WORD height = (cp->opcode & 0x000F);
+    int x = 0, y = 0;
+
+    for(; y < height; y++)
+    {
+        WORD pixel = cp->memory[cp->i + y];
+        for(; x < 8; x++)
+        {
+            if (pixel & (0x80 >> x)) 
+            {
+                 if (cp->gfx[x+VX+(y+VY)*64]) 
+                 {
+                    VF = 1;
+                 }
+                  cp->gfx[x+VX+(y+VY)*64] ^= 1;
+            }
+        }
+        
+    }
 }
 
 void do_catchall(cpu *cp)
@@ -229,6 +255,7 @@ opcode opcodes[] = {
 {0xf000, 0xa000, do_set_i_nnn},
 {0xf000, 0xb000, do_jp_v0},
 {0xf000, 0xc000, do_set_vx_rnd_kk},
+{0xf000, 0xd000, do_drw_vx_vy},
 {0xf0ff, 0xe09e, do_set_keypressed_vx},
 {0xf0ff, 0xe0a1, do_sknp_vx},
 {0xffff, 0x00ee, do_ret},
